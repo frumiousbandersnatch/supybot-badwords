@@ -41,7 +41,7 @@ import cPickle
 import os.path
 
 def string_to_wordlist(words):
-    """Return a list of words from the given comma-separated-string. The list can contain empty strings."""
+    """Return a list of words from the given comma-separated-string."""
     wordlist = []
     for word in words.split(","):
         word = re.sub("""(^\s*?\s*|\s*?\s*$)""", "", word)
