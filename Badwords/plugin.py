@@ -77,7 +77,7 @@ class Badwords(callbacks.Plugin):
         f.close()
 
     def add(self, irc, msg, args, channel, word):
-        """<word>, <word>, ...
+        """[<channel>] <word>, <word>, ...
 
         Add one or more <word> to the word list (comma-separated).
 
@@ -108,7 +108,7 @@ class Badwords(callbacks.Plugin):
     add = wrap(add, ['channel', 'text', 'admin'])
 
     def remove(self, irc, msg, args, channel, word):
-        """<word>, <word>, ...
+        """[<channel>] <word>, <word>, ...
 
         Remove one or more <word> from the word list (comma-separated)."""
 
@@ -129,14 +129,14 @@ class Badwords(callbacks.Plugin):
         return irc.reply("Removed the following words: %s" % ", ".join(removed), private=True, notice=True)
     remove = wrap(remove, ['channel', 'text', 'admin'])
 
-    def response(self, irc, msg, args, channel, message):
+    def response(self, irc, msg, args, message):
         """[<message>]
 
         Set a response message to word abusers."""
         if message is not None:
             self.message.setValue(message)
         return irc.reply("Badword speakers will be responded with %r" % self.message(), private=True, notice=True)
-    response = wrap(response, ['channel', optional('text'), 'admin'])
+    response = wrap(response, [optional('text'), 'admin'])
 
     def list(self, irc, msg, args, channel):
         """
