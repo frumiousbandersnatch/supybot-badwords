@@ -49,7 +49,7 @@ class Badwords(callbacks.Plugin):
     This should describe *how* to use this plugin."""
     threaded = True
 
-    BADWORDS_DATA = "%s/%s" % (conf.supybot.directories.data, "badwords.pkl")
+    BADWORDS_DATA = os.path.join(conf.supybot.directories.data, "badwords.pkl")
 
     def __init__(self, irc):
         self.__parent = super(Badwords, self)
@@ -76,7 +76,7 @@ class Badwords(callbacks.Plugin):
         cPickle.dump(self.words, f)
         f.close()
 
-    def add(self, irc, msg, args, word):
+    def add(self, irc, msg, args, channel, word):
         """<word>, <word>, ...
 
         Add one or more <word> to the word list (comma-separated).
@@ -91,8 +91,6 @@ class Badwords(callbacks.Plugin):
         (backup/restore).
         """
 
-        # Set the channel
-        channel = msg.args[0]
         if not channel in self.words:
             self.words[channel] = []
 
@@ -107,16 +105,14 @@ class Badwords(callbacks.Plugin):
             self._save()
 
         return irc.reply("Added the following words: %s" % ", ".join(added), private=True, notice=True)
-    add = wrap(add, ['admin', 'text'])
-#    add = wrap(add, ['text'])
+    add = wrap(add, ['channel', 'text', 'admin'])
 
-    def remove(self, irc, msg, args, word):
+    def remove(self, irc, msg, args, channel, word):
         """<word>, <word>, ...
 
         Remove one or more <word> from the word list (comma-separated)."""
 
         # Set the channel
-        channel = msg.args[0]
         if not channel in self.words:
             return irc.reply("No words are set for %r." % channel)
 
@@ -131,29 +127,26 @@ class Badwords(callbacks.Plugin):
             self._save()
 
         return irc.reply("Removed the following words: %s" % ", ".join(removed), private=True, notice=True)
-    remove = wrap(remove, ['admin', 'text'])
-#    remove = wrap(remove, ['text'])
+    remove = wrap(remove, ['channel', 'text', 'admin'])
 
-    def response(self, irc, msg, args, message):
+    def response(self, irc, msg, args, channel, message):
         """[<message>]
 
         Set a response message to word abusers."""
         if message is not None:
             self.message.setValue(message)
         return irc.reply("Badword speakers will be responded with %r" % self.message(), private=True, notice=True)
-    response = wrap(response, ['admin', optional('text')])
-#    response = wrap(response, [optional('text')])
+    response = wrap(response, ['channel', optional('text'), 'admin'])
 
-    def list(self, irc, msg, args):
+    def list(self, irc, msg, args, channel):
         """
 
         Show the response message and the list of words."""
 
-        channel = msg.args[0]
-        return irc.reply(", ".join(self.words.get(channel, [])), private=True, notice=True)
-    list = wrap(list, ['admin'])
+        return irc.reply("%s: %s" % (channel, ", ".join(self.words.get(channel, []))), private=True, notice=True)
+    list = wrap(list, ['channel', 'admin'])
 
-    def clear(self, irc, msg, args):
+    def clear(self, irc, msg, args, channel):
         """
 
         Clear all stored words of the current channel.
@@ -165,12 +158,12 @@ class Badwords(callbacks.Plugin):
             del self.words[channel][:]
             self._save()
         return irc.reply("All words cleared for %r." % channel, private=True, notice=True)
-    clear = wrap(clear, ['admin'])
+    clear = wrap(clear, ['channel', 'admin'])
 
     def clearall(self, irc, msg, args):
         """
 
-        Clear all stored words of the current channel.
+        Clear all stored words of all channels.
         """
 
         self.words.clear()
