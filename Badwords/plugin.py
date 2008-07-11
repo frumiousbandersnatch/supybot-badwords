@@ -36,12 +36,13 @@ import supybot.callbacks as callbacks
 import supybot.conf as conf
 
 import re
+import fnmatch
 import cPickle
 import os.path
 
 def string_to_wordlist(words):
     """Return a list of words from the given comma-separated-string. The list can contain empty strings."""
-    return [re.sub("""(^\s*['"]?\s*|\s*['"]?\s*$)""", "", word) for word in words.split(",")]
+    return [re.sub("""(^\s*?\s*|\s*?\s*$)""", "", word) for word in words.split(",")]
 
 class Badwords(callbacks.Plugin):
     """Add the help for "@plugin help Badwords" here
@@ -75,10 +76,20 @@ class Badwords(callbacks.Plugin):
         cPickle.dump(self.words, f)
         f.close()
 
-    def add(self, irc, msg, args, sms):
-        """<sms>, <sms>, ...
+    def add(self, irc, msg, args, word):
+        """<word>, <word>, ...
 
-        Add one or more <sms> to the SMS list (comma-separated)."""
+        Add one or more <word> to the word list (comma-separated).
+
+        Support for Unix shell-style wildcards is available:
+        *	matches everything.
+        ?	matches any single character.
+        [seq]	matches any character in seq.
+        [!seq]	matches any character not in seq.
+
+        The output of the 'list' command can also be used for mass injection
+        (backup/restore).
+        """
 
         # Set the channel
         channel = msg.args[0]
@@ -87,7 +98,7 @@ class Badwords(callbacks.Plugin):
 
         # Holds a list of added words. Only used for reporting.
         added = []
-        for word in string_to_wordlist(sms):
+        for word in string_to_wordlist(word):
             if word and word not in self.words[channel]:
                 added.append(word)
                 self.words[channel].append(word)
@@ -95,14 +106,14 @@ class Badwords(callbacks.Plugin):
         if added:
             self._save()
 
-        return irc.reply("Added the following words: %r" % added, private=True, notice=True)
+        return irc.reply("Added the following words: %s" % ", ".join(added), private=True, notice=True)
     add = wrap(add, ['admin', 'text'])
 #    add = wrap(add, ['text'])
 
-    def remove(self, irc, msg, args, sms):
-        """<sms>, <sms>, ...
+    def remove(self, irc, msg, args, word):
+        """<word>, <word>, ...
 
-        Remove one or more <sms> from the SMS list (comma-separated)."""
+        Remove one or more <word> from the word list (comma-separated)."""
 
         # Set the channel
         channel = msg.args[0]
@@ -111,7 +122,7 @@ class Badwords(callbacks.Plugin):
 
         # Holds a list of removed words. Only used for reporting.
         removed = []
-        for word in string_to_wordlist(sms):
+        for word in string_to_wordlist(word):
             if word and word in self.words[channel]:
                 removed.append(word)
                 self.words[channel].remove(word)
@@ -119,37 +130,33 @@ class Badwords(callbacks.Plugin):
         if removed:
             self._save()
 
-        return irc.reply("Removed the following words: %r" % removed, private=True, notice=True)
+        return irc.reply("Removed the following words: %s" % ", ".join(removed), private=True, notice=True)
     remove = wrap(remove, ['admin', 'text'])
 #    remove = wrap(remove, ['text'])
 
     def response(self, irc, msg, args, message):
         """[<message>]
 
-        Set a response message to SMS abusers."""
+        Set a response message to word abusers."""
         if message is not None:
             self.message.setValue(message)
-        return irc.reply("SMS speakers will be responded with %r" % self.message(), private=True, notice=True)
+        return irc.reply("Badword speakers will be responded with %r" % self.message(), private=True, notice=True)
     response = wrap(response, ['admin', optional('text')])
 #    response = wrap(response, [optional('text')])
 
     def list(self, irc, msg, args):
         """
 
-        Show the response message and the list of SMS words."""
+        Show the response message and the list of words."""
 
         channel = msg.args[0]
-
-        if not channel in self.words:
-            return irc.reply("SMS response: %r -- SMS words: %r" % (self.message(), []), private=True, notice=True)
-
-        return irc.reply("SMS response: %r -- SMS words: %r" % (self.message(), self.words[channel]), private=True, notice=True)
+        return irc.reply(", ".join(self.words.get(channel, [])), private=True, notice=True)
     list = wrap(list, ['admin'])
 
     def clear(self, irc, msg, args):
         """
 
-        Clear all stored SMS words of the current channel.
+        Clear all stored words of the current channel.
         """
 
         # Set the channel
@@ -157,18 +164,18 @@ class Badwords(callbacks.Plugin):
         if channel in self.words:
             del self.words[channel][:]
             self._save()
-        return irc.reply("All SMS words cleared for %r." % channel, private=True, notice=True)
+        return irc.reply("All words cleared for %r." % channel, private=True, notice=True)
     clear = wrap(clear, ['admin'])
 
     def clearall(self, irc, msg, args):
         """
 
-        Clear all stored SMS words of the current channel.
+        Clear all stored words of the current channel.
         """
 
         self.words.clear()
         self._save()
-        return irc.reply("All SMS words cleared for all channels.", private=True, notice=True)
+        return irc.reply("All words cleared for all channels.", private=True, notice=True)
     clearall = wrap(clearall, ['admin'])
 
     def doPrivmsg(self, irc, msg):
@@ -179,7 +186,7 @@ class Badwords(callbacks.Plugin):
         # Grab the command char
         cmd_char = conf.supybot.reply.whenAddressedBy.chars()
 
-        # If it's a command, don't notify if SMS words are used.
+        # If it's a command, don't notify if bad words are used.
         if txt.startswith(cmd_char):
             return
 
@@ -188,8 +195,9 @@ class Badwords(callbacks.Plugin):
         if not channel in self.words:
             return
 
-        for sms in self.words[channel]:
-            regex = re.compile(r"\b%s\b" % sms)
+        for word in self.words[channel]:
+            # We remove the last char, which is a "$" that fnmatch.translate appends.
+            regex = re.compile(r"\b%s\b" % fnmatch.translate(word)[:-1])
             if regex.search(txt.lower()):
                 return irc.reply(self.message, private=True, notice=True)
 
