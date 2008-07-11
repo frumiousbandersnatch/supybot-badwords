@@ -55,11 +55,6 @@ class Badwords(callbacks.Plugin):
         self.__parent = super(Badwords, self)
         self.__parent.__init__(irc)
 
-        # We don't call the function because replacing the string doesn't make the changes persistant.
-        # We will need to use the .setValue() method to store the new string.
-        # FIXME: this is not very clean.
-        self.message = conf.supybot.plugins.Badwords.get("responseMessage")
-
         # Loads self.words
         self._load()
 
@@ -77,6 +72,66 @@ class Badwords(callbacks.Plugin):
         f = open(Badwords.BADWORDS_DATA, "wb")
         cPickle.dump(self.words, f)
         f.close()
+
+    def _get_responseString(self): return conf.supybot.plugins.Badwords.responseString()
+    def _set_responseString(self, msg): conf.supybot.plugins.Badwords.responseString.setValue(msg)
+    responseString = property(_get_responseString, _set_responseString)
+
+    def _get_responseAsNotice(self): return conf.supybot.plugins.Badwords.responseAsNotice()
+    def _set_responseAsNotice(self, msg): conf.supybot.plugins.Badwords.responseAsNotice.setValue(msg)
+    responseAsNotice = property(_get_responseAsNotice, _set_responseAsNotice)
+
+    def _get_responseAsPrivate(self): return conf.supybot.plugins.Badwords.responseAsPrivate()
+    def _set_responseAsPrivate(self, msg): conf.supybot.plugins.Badwords.responseAsPrivate.setValue(msg)
+    responseAsPrivate = property(_get_responseAsPrivate, _set_responseAsPrivate)
+
+    def _get_confirmResponseString(self): return conf.supybot.plugins.Badwords.confirmResponseString()
+    def _set_confirmResponseString(self, msg): conf.supybot.plugins.Badwords.confirmResponseString.setValue(msg)
+    confirmResponseString = property(_get_confirmResponseString, _set_confirmResponseString)
+
+    def _get_confirmAddString(self): return conf.supybot.plugins.Badwords.confirmAddString()
+    def _set_confirmAddString(self, msg): conf.supybot.plugins.Badwords.confirmAddString.setValue(msg)
+    confirmAddString = property(_get_confirmAddString, _set_confirmAddString)
+
+    def _get_confirmRemoveString(self): return conf.supybot.plugins.Badwords.confirmRemoveString()
+    def _set_confirmRemoveString(self, msg): conf.supybot.plugins.Badwords.confirmRemoveString.setValue(msg)
+    confirmRemoveString = property(_get_confirmRemoveString, _set_confirmRemoveString)
+
+    def _get_confirmClearString(self): return conf.supybot.plugins.Badwords.confirmClearString()
+    def _set_confirmClearString(self, msg): conf.supybot.plugins.Badwords.confirmClearString.setValue(msg)
+    confirmClearString = property(_get_confirmClearString, _set_confirmClearString)
+
+    def _get_confirmClearAllString(self): return conf.supybot.plugins.Badwords.confirmClearAllString()
+    def _set_confirmClearAllString(self, msg): conf.supybot.plugins.Badwords.confirmClearAllString.setValue(msg)
+    confirmClearAllString = property(_get_confirmClearAllString, _set_confirmClearAllString)
+
+    def _get_confirmAsNotice(self): return conf.supybot.plugins.Badwords.confirmAsNotice()
+    def _set_confirmAsNotice(self, msg): conf.supybot.plugins.Badwords.confirmAsNotice.setValue(msg)
+    confirmAsNotice = property(_get_confirmAsNotice, _set_confirmAsNotice)
+
+    def _get_confirmAsPrivate(self): return conf.supybot.plugins.Badwords.confirmAsPrivate()
+    def _set_confirmAsPrivate(self, msg): conf.supybot.plugins.Badwords.confirmAsPrivate.setValue(msg)
+    confirmAsPrivate = property(_get_confirmAsPrivate, _set_confirmAsPrivate)
+
+    def _get_listAsNotice(self): return conf.supybot.plugins.Badwords.listAsNotice()
+    def _set_listAsNotice(self, msg): conf.supybot.plugins.Badwords.listAsNotice.setValue(msg)
+    listAsNotice = property(_get_listAsNotice, _set_listAsNotice)
+
+    def _get_listAsPrivate(self): return conf.supybot.plugins.Badwords.listAsPrivate()
+    def _set_listAsPrivate(self, msg): conf.supybot.plugins.Badwords.listAsPrivate.setValue(msg)
+    listAsPrivate = property(_get_listAsPrivate, _set_listAsPrivate)
+
+    def _get_channelForwarding(self): return conf.supybot.plugins.Badwords.channelForwarding()
+    def _set_channelForwarding(self, msg): conf.supybot.plugins.Badwords.channelForwarding.setValue(msg)
+    channelForwarding = property(_get_channelForwarding, _set_channelForwarding)
+
+    def _get_forwardTo(self): return conf.supybot.plugins.Badwords.forwardTo()
+    def _set_forwardTo(self, msg): conf.supybot.plugins.Badwords.forwardTo.setValue(msg)
+    forwardTo = property(_get_forwardTo, _set_forwardTo)
+
+    def _get_forwardString(self): return conf.supybot.plugins.Badwords.forwardString()
+    def _set_forwardString(self, msg): conf.supybot.plugins.Badwords.forwardString.setValue(msg)
+    forwardString = property(_get_forwardString, _set_forwardString)
 
     def add(self, irc, msg, args, channel, word):
         """[<channel>] <word>, <word>, ...
@@ -98,19 +153,13 @@ class Badwords(callbacks.Plugin):
         if not channel in self.words:
             self.words[channel] = []
 
-        # Holds a list of ignored words. Only used for reporting.
-        ignored = []
-        for word in [w for w in string_to_wordlist(word) if w]:
-            if word and word not in self.words[channel]:
+        for word in [w for w in string_to_wordlist(word) if w]: # filter-out potential empty strings ''
+            if word not in self.words[channel]:
                 self.words[channel].append(word)
-            else:
-                ignored.append(word)
 
         self._save()
 
-        if ignored:
-            return irc.reply("Adding done. Ignored duplicate(s): %s" % ", ".join(ignored), private=True, notice=True)
-        return irc.reply("Done adding.", private=True, notice=True)
+        return irc.reply(self.confirmAddString % {"channel":channel}, private=self.confirmAsPrivate, notice=self.confirmAsNotice)
     add = wrap(add, ['channel', 'text', 'admin'])
 
     def remove(self, irc, msg, args, channel, word):
@@ -121,23 +170,13 @@ class Badwords(callbacks.Plugin):
         current channel.
         """
 
-        # Set the channel
-        if not channel in self.words:
-            return irc.reply("No words are set for %s." % channel)
-
-        # Holds a list of ignored words. Only used for reporting.
-        ignored = []
-        for word in [w for w in string_to_wordlist(word) if w]:
-            if word in self.words[channel]:
+        for word in [w for w in string_to_wordlist(word) if w]: # filter-out potential empty strings ''
+            if word in self.words.get(channel, []):
                 self.words[channel].remove(word)
-            else:
-                ignored.append(word)
 
         self._save()
 
-        if ignored:
-            return irc.reply("Removing done. Ignored unfound: %s" % ", ".join(ignored), private=True, notice=True)
-        return irc.reply("Removing done.", private=True, notice=True)
+        return irc.reply(self.confirmRemoveString % {"channel":channel}, private=self.confirmAsPrivate, notice=self.confirmAsNotice)
     remove = wrap(remove, ['channel', 'text', 'admin'])
 
     def response(self, irc, msg, args, message):
@@ -146,8 +185,8 @@ class Badwords(callbacks.Plugin):
         Set <messsage> as a response to bad word abusers. If <message> is not
         given, return the current message."""
         if message is not None:
-            self.message.setValue(message)
-        return irc.reply("Badword speakers will be responded with %r" % self.message(), private=True, notice=True)
+            self.responseString = message
+        return irc.reply(self.confirmResponseString % {"response":self.responseString}, private=self.confirmAsPrivate, notice=self.confirmAsNotice)
     response = wrap(response, [optional('text'), 'admin'])
 
     def list(self, irc, msg, args, channel):
@@ -155,7 +194,7 @@ class Badwords(callbacks.Plugin):
 
         Show the list of words."""
 
-        return irc.reply("%s: %s" % (channel, ", ".join(self.words.get(channel, []))), private=True, notice=True)
+        return irc.reply("%s: %s" % (channel, ", ".join(self.words.get(channel, []))), private=self.listAsPrivate, notice=self.listAsNotice)
     list = wrap(list, ['channel', 'admin'])
 
     def clear(self, irc, msg, args, channel):
@@ -168,7 +207,7 @@ class Badwords(callbacks.Plugin):
         if channel in self.words:
             del self.words[channel][:]
             self._save()
-        return irc.reply("All words cleared for %r." % channel, private=True, notice=True)
+        return irc.reply(self.confirmClearString % {"channel":channel}, private=self.confirmAsPrivate, notice=self.confirmAsNotice)
     clear = wrap(clear, ['channel', 'admin'])
 
     def clearall(self, irc, msg, args):
@@ -179,16 +218,16 @@ class Badwords(callbacks.Plugin):
 
         self.words.clear()
         self._save()
-        return irc.reply("All words cleared for all channels.", private=True, notice=True)
+        return irc.reply(self.confirmClearAllString, private=self.confirmAsPrivate, notice=self.confirmAsNotice)
     clearall = wrap(clearall, ['admin'])
 
     def doPrivmsg(self, irc, msg):
         """This is called everytime an IRC message is recieved."""
-        # Grab the actual text
-        txt = msg.args[1]
-
         # Grab the command char
         cmd_char = conf.supybot.reply.whenAddressedBy.chars()
+
+        # Grab the actual text
+        txt = msg.args[1]
 
         # If it's a command, don't notify if bad words are used.
         if txt.startswith(cmd_char):
@@ -203,7 +242,7 @@ class Badwords(callbacks.Plugin):
             # We remove the last char, which is a "$" that fnmatch.translate appends.
             regex = re.compile(r"\b%s\b" % fnmatch.translate(word)[:-1])
             if regex.search(txt.lower()):
-                return irc.reply(self.message, private=True, notice=True)
+                return irc.reply(responseString, private=self.responseAsPrivate, notice=self.responseAsNotice)
 
 Class = Badwords
 
