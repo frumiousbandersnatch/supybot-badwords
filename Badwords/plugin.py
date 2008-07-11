@@ -55,11 +55,11 @@ class Badwords(callbacks.Plugin):
         self.__parent = super(Badwords, self)
         self.__parent.__init__(irc)
 
-        # Loads self.words
+        # Loads self.words from disk.
         self._load()
 
     def _load(self):
-        """Load the self.words dict from disk."""
+        """Load the self.words from disk."""
         if not os.path.isfile(Badwords.BADWORDS_DATA):
             self.words = {}
             return
@@ -68,7 +68,7 @@ class Badwords(callbacks.Plugin):
         f.close()
 
     def _save(self):
-        """Save the self.words dict to disk."""
+        """Save the self.words to disk."""
         f = open(Badwords.BADWORDS_DATA, "wb")
         cPickle.dump(self.words, f)
         f.close()
@@ -183,7 +183,8 @@ class Badwords(callbacks.Plugin):
         """[<message>]
 
         Set <messsage> as a response to bad word abusers. If <message> is not
-        given, return the current message."""
+        given, return the current message.
+        """
         if message is not None:
             self.responseString = message
         return irc.reply(self.confirmationResponse % {"response":self.responseString}, private=self.confirmationAsPrivate, notice=self.confirmationAsNotice)
@@ -192,7 +193,8 @@ class Badwords(callbacks.Plugin):
     def list(self, irc, msg, args, channel):
         """[<channel>]
 
-        Show the list of words."""
+        Show the list of words.
+        """
 
         return irc.reply("%s: %s" % (channel, ", ".join(self.words.get(channel, []))), private=self.listingAsPrivate, notice=self.listingAsNotice)
     list = wrap(list, ['channel', 'admin'])
@@ -229,17 +231,17 @@ class Badwords(callbacks.Plugin):
         # Grab the actual text
         txt = msg.args[1]
 
-        # If it's a command, don't notify if bad words are used.
+        # Don't process bot commands.
         if txt.startswith(cmd_char):
             return
 
-        # Set the channel
+        # Do we have any words for the channel?
         channel = msg.args[0]
         if not channel in self.words:
             return
 
         for word in self.words[channel]:
-            # We remove the last char, which is a "$" that fnmatch.translate appends.
+            # Remove the last char "$" appended by fnmatch.translate.
             regex = re.compile(r"\b%s\b" % fnmatch.translate(word)[:-1])
             if regex.search(txt.lower()):
                 return irc.reply(self.responseString, private=self.responseAsPrivate, notice=self.responseAsNotice)
