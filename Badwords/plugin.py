@@ -64,6 +64,7 @@ class Badwords(callbacks.Plugin):
         self._load()
 
     def _load(self):
+        """Load the self.words dict from disk."""
         if not os.path.isfile(Badwords.BADWORDS_DATA):
             self.words = {}
             return
@@ -72,6 +73,7 @@ class Badwords(callbacks.Plugin):
         f.close()
 
     def _save(self):
+        """Save the self.words dict to disk."""
         f = open(Badwords.BADWORDS_DATA, "wb")
         cPickle.dump(self.words, f)
         f.close()
@@ -139,9 +141,9 @@ class Badwords(callbacks.Plugin):
     response = wrap(response, [optional('text'), 'admin'])
 
     def list(self, irc, msg, args, channel):
-        """
+        """[<channel>]
 
-        Show the response message and the list of words."""
+        Show the list of words."""
 
         return irc.reply("%s: %s" % (channel, ", ".join(self.words.get(channel, []))), private=True, notice=True)
     list = wrap(list, ['channel', 'admin'])
