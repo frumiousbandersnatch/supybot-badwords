@@ -42,7 +42,11 @@ import os.path
 
 def string_to_wordlist(words):
     """Return a list of words from the given comma-separated-string. The list can contain empty strings."""
-    return [re.sub("""(^\s*?\s*|\s*?\s*$)""", "", word) for word in words.split(",")]
+    wordlist = []
+    for word in words.split(","):
+        word = re.sub("""(^\s*?\s*|\s*?\s*$)""", "", word)
+        word and wordlist.append(word)
+    return wordlist
 
 class Badwords(callbacks.Plugin):
     """Add the help for "@plugin help Badwords" here
@@ -153,7 +157,7 @@ class Badwords(callbacks.Plugin):
         if not channel in self.words:
             self.words[channel] = []
 
-        for word in [w for w in string_to_wordlist(word) if w]: # filter-out potential empty strings ''
+        for word in string_to_wordlist(word):
             if word not in self.words[channel]:
                 self.words[channel].append(word)
 
@@ -170,7 +174,7 @@ class Badwords(callbacks.Plugin):
         current channel.
         """
 
-        for word in [w for w in string_to_wordlist(word) if w]: # filter-out potential empty strings ''
+        for word in string_to_wordlist(word):
             if word in self.words.get(channel, []):
                 self.words[channel].remove(word)
 
