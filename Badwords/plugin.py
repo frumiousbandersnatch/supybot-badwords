@@ -245,9 +245,10 @@ class Badwords(callbacks.Plugin):
             return
 
         for word in self.words[channel]:
-            # Remove the last char "$" appended by fnmatch.translate.
-            regex = re.compile(r"\b%s\b" % fnmatch.translate(word)[:-1])
-            if regex.search(txt.lower()):
+            # UTF strings must be converted to unicode. Then compile the regex with the re.UNICODE flag.
+            # Remove the last char "$" appended by fnmatch.translate().
+            regex = re.compile(r"\b%s\b" % fnmatch.translate(word.decode("utf-8"))[:-1], re.IGNORECASE | re.UNICODE)
+            if regex.search(txt.decode("utf-8")):
                 return irc.reply(self.responseString, private=self.responseAsPrivate, notice=self.responseAsNotice)
 
 Class = Badwords
