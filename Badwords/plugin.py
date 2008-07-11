@@ -242,7 +242,7 @@ class Badwords(callbacks.Plugin):
             # We remove the last char, which is a "$" that fnmatch.translate appends.
             regex = re.compile(r"\b%s\b" % fnmatch.translate(word)[:-1])
             if regex.search(txt.lower()):
-                return irc.reply(responseString, private=self.responseAsPrivate, notice=self.responseAsNotice)
+                return irc.reply(self.responseString, private=self.responseAsPrivate, notice=self.responseAsNotice)
 
 Class = Badwords
 
