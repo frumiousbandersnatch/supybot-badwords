@@ -81,7 +81,9 @@ class Badwords(callbacks.Plugin):
     def add(self, irc, msg, args, channel, word):
         """[<channel>] <word>, <word>, ...
 
-        Add one or more <word> to the word list (comma-separated).
+        Add one or more words from the given <word> list (comma-separated) for
+        channel <channel>. If <channel> is not given, add words for the current
+        channel.
 
         Support for Unix shell-style wildcards is available:
         *	matches everything.
@@ -114,11 +116,14 @@ class Badwords(callbacks.Plugin):
     def remove(self, irc, msg, args, channel, word):
         """[<channel>] <word>, <word>, ...
 
-        Remove one or more <word> from the word list (comma-separated)."""
+        Remove one or more words from the given <word> list (comma-separated)
+        for channel <channel>. If <channel> is not given, remove words for the
+        current channel.
+        """
 
         # Set the channel
         if not channel in self.words:
-            return irc.reply("No words are set for %r." % channel)
+            return irc.reply("No words are set for %s." % channel)
 
         # Holds a list of ignored words. Only used for reporting.
         ignored = []
@@ -156,7 +161,8 @@ class Badwords(callbacks.Plugin):
     def clear(self, irc, msg, args, channel):
         """[<channel>]
 
-        Clear all stored words of the current channel.
+        Clear all stored words from channel <channel>. If <channel> is not
+        given, clear words from the current channel.
         """
 
         if channel in self.words:
