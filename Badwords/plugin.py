@@ -49,7 +49,7 @@ class Badwords(callbacks.Plugin):
     This should describe *how* to use this plugin."""
     threaded = True
 
-    BADWORDS_DATA = os.path.join(conf.supybot.directories.data, "badwords.pkl")
+    BADWORDS_DATA = os.path.join(conf.supybot.directories.data(), "badwords.pkl")
 
     def __init__(self, irc):
         self.__parent = super(Badwords, self)
