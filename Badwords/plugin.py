@@ -147,13 +147,11 @@ class Badwords(callbacks.Plugin):
     list = wrap(list, ['channel', 'admin'])
 
     def clear(self, irc, msg, args, channel):
-        """
+        """[<channel>]
 
         Clear all stored words of the current channel.
         """
 
-        # Set the channel
-        channel = msg.args[0]
         if channel in self.words:
             del self.words[channel][:]
             self._save()
