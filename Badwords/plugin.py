@@ -96,17 +96,19 @@ class Badwords(callbacks.Plugin):
         if not channel in self.words:
             self.words[channel] = []
 
-        # Holds a list of added words. Only used for reporting.
-        added = []
-        for word in string_to_wordlist(word):
+        # Holds a list of ignored words. Only used for reporting.
+        ignored = []
+        for word in [w for w in string_to_wordlist(word) if w]:
             if word and word not in self.words[channel]:
-                added.append(word)
                 self.words[channel].append(word)
+            else:
+                ignored.append(word)
 
-        if added:
-            self._save()
+        self._save()
 
-        return irc.reply("Added the following words: %s" % ", ".join(added), private=True, notice=True)
+        if ignored:
+            return irc.reply("Adding done. Ignored duplicate(s): %s" % ", ".join(ignored), private=True, notice=True)
+        return irc.reply("Done adding.", private=True, notice=True)
     add = wrap(add, ['channel', 'text', 'admin'])
 
     def remove(self, irc, msg, args, channel, word):
@@ -118,23 +120,26 @@ class Badwords(callbacks.Plugin):
         if not channel in self.words:
             return irc.reply("No words are set for %r." % channel)
 
-        # Holds a list of removed words. Only used for reporting.
-        removed = []
-        for word in string_to_wordlist(word):
-            if word and word in self.words[channel]:
-                removed.append(word)
+        # Holds a list of ignored words. Only used for reporting.
+        ignored = []
+        for word in [w for w in string_to_wordlist(word) if w]:
+            if word in self.words[channel]:
                 self.words[channel].remove(word)
+            else:
+                ignored.append(word)
 
-        if removed:
-            self._save()
+        self._save()
 
-        return irc.reply("Removed the following words: %s" % ", ".join(removed), private=True, notice=True)
+        if ignored:
+            return irc.reply("Removing done. Ignored unfound: %s" % ", ".join(ignored), private=True, notice=True)
+        return irc.reply("Removing done.", private=True, notice=True)
     remove = wrap(remove, ['channel', 'text', 'admin'])
 
     def response(self, irc, msg, args, message):
         """[<message>]
 
-        Set a response message to word abusers."""
+        Set <messsage> as a response to bad word abusers. If <message> is not
+        given, return the current message."""
         if message is not None:
             self.message.setValue(message)
         return irc.reply("Badword speakers will be responded with %r" % self.message(), private=True, notice=True)
