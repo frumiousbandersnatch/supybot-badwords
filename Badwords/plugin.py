@@ -73,65 +73,65 @@ class Badwords(callbacks.Plugin):
         cPickle.dump(self.words, f)
         f.close()
 
-    def _get_responseString(self): return conf.supybot.plugins.Badwords.responseString()
-    def _set_responseString(self, msg): conf.supybot.plugins.Badwords.responseString.setValue(msg)
+    def _get_responseString(self): return conf.supybot.plugins.Badwords.response.string()
+    def _set_responseString(self, msg): conf.supybot.plugins.Badwords.response.string.setValue(msg)
     responseString = property(_get_responseString, _set_responseString)
 
-    def _get_responseAsNotice(self): return conf.supybot.plugins.Badwords.responseAsNotice()
-    def _set_responseAsNotice(self, msg): conf.supybot.plugins.Badwords.responseAsNotice.setValue(msg)
+    def _get_responseAsNotice(self): return conf.supybot.plugins.Badwords.response.asNotice()
+    def _set_responseAsNotice(self, msg): conf.supybot.plugins.Badwords.response.asNotice.setValue(msg)
     responseAsNotice = property(_get_responseAsNotice, _set_responseAsNotice)
 
-    def _get_responseAsPrivate(self): return conf.supybot.plugins.Badwords.responseAsPrivate()
-    def _set_responseAsPrivate(self, msg): conf.supybot.plugins.Badwords.responseAsPrivate.setValue(msg)
+    def _get_responseAsPrivate(self): return conf.supybot.plugins.Badwords.response.asPrivate()
+    def _set_responseAsPrivate(self, msg): conf.supybot.plugins.Badwords.response.asPrivate.setValue(msg)
     responseAsPrivate = property(_get_responseAsPrivate, _set_responseAsPrivate)
 
-    def _get_confirmResponseString(self): return conf.supybot.plugins.Badwords.confirmResponseString()
-    def _set_confirmResponseString(self, msg): conf.supybot.plugins.Badwords.confirmResponseString.setValue(msg)
-    confirmResponseString = property(_get_confirmResponseString, _set_confirmResponseString)
+    def _get_confirmationResponse(self): return conf.supybot.plugins.Badwords.confirmation.response()
+    def _set_confirmationResponse(self, msg): conf.supybot.plugins.Badwords.confirmation.setValue(msg)
+    confirmationResponse = property(_get_confirmationResponse, _set_confirmationResponse)
 
-    def _get_confirmAddString(self): return conf.supybot.plugins.Badwords.confirmAddString()
-    def _set_confirmAddString(self, msg): conf.supybot.plugins.Badwords.confirmAddString.setValue(msg)
-    confirmAddString = property(_get_confirmAddString, _set_confirmAddString)
+    def _get_confirmationAdd(self): return conf.supybot.plugins.Badwords.confirmation.add()
+    def _set_confirmationAdd(self, msg): conf.supybot.plugins.Badwords.confirmation.add.setValue(msg)
+    confirmationAdd = property(_get_confirmationAdd, _set_confirmationAdd)
 
-    def _get_confirmRemoveString(self): return conf.supybot.plugins.Badwords.confirmRemoveString()
-    def _set_confirmRemoveString(self, msg): conf.supybot.plugins.Badwords.confirmRemoveString.setValue(msg)
-    confirmRemoveString = property(_get_confirmRemoveString, _set_confirmRemoveString)
+    def _get_confirmationRemove(self): return conf.supybot.plugins.Badwords.confirmation.remove()
+    def _set_confirmationRemove(self, msg): conf.supybot.plugins.Badwords.confirmation.remove.setValue(msg)
+    confirmationRemove = property(_get_confirmationRemove, _set_confirmationRemove)
 
-    def _get_confirmClearString(self): return conf.supybot.plugins.Badwords.confirmClearString()
-    def _set_confirmClearString(self, msg): conf.supybot.plugins.Badwords.confirmClearString.setValue(msg)
-    confirmClearString = property(_get_confirmClearString, _set_confirmClearString)
+    def _get_confirmationClear(self): return conf.supybot.plugins.Badwords.confirmation.clear()
+    def _set_confirmationClear(self, msg): conf.supybot.plugins.Badwords.confirmation.clear.setValue(msg)
+    confirmationClear = property(_get_confirmationClear, _set_confirmationClear)
 
-    def _get_confirmClearAllString(self): return conf.supybot.plugins.Badwords.confirmClearAllString()
-    def _set_confirmClearAllString(self, msg): conf.supybot.plugins.Badwords.confirmClearAllString.setValue(msg)
-    confirmClearAllString = property(_get_confirmClearAllString, _set_confirmClearAllString)
+    def _get_confirmationClearAll(self): return conf.supybot.plugins.Badwords.confirmation.clearAll()
+    def _set_confirmationClearAll(self, msg): conf.supybot.plugins.Badwords.confirmation.clearAll.setValue(msg)
+    confirmationClearAll = property(_get_confirmationClearAll, _set_confirmationClearAll)
 
-    def _get_confirmAsNotice(self): return conf.supybot.plugins.Badwords.confirmAsNotice()
-    def _set_confirmAsNotice(self, msg): conf.supybot.plugins.Badwords.confirmAsNotice.setValue(msg)
-    confirmAsNotice = property(_get_confirmAsNotice, _set_confirmAsNotice)
+    def _get_confirmationAsNotice(self): return conf.supybot.plugins.Badwords.confirmation.asNotice()
+    def _set_confirmationAsNotice(self, msg): conf.supybot.plugins.Badwords.confirmation.asNotice.setValue(msg)
+    confirmationAsNotice = property(_get_confirmationAsNotice, _set_confirmationAsNotice)
 
-    def _get_confirmAsPrivate(self): return conf.supybot.plugins.Badwords.confirmAsPrivate()
-    def _set_confirmAsPrivate(self, msg): conf.supybot.plugins.Badwords.confirmAsPrivate.setValue(msg)
-    confirmAsPrivate = property(_get_confirmAsPrivate, _set_confirmAsPrivate)
+    def _get_confirmationAsPrivate(self): return conf.supybot.plugins.Badwords.confirmation.asPrivate()
+    def _set_confirmationAsPrivate(self, msg): conf.supybot.plugins.Badwords.confirmation.asPrivate.setValue(msg)
+    confirmationAsPrivate = property(_get_confirmationAsPrivate, _set_confirmationAsPrivate)
 
-    def _get_listAsNotice(self): return conf.supybot.plugins.Badwords.listAsNotice()
-    def _set_listAsNotice(self, msg): conf.supybot.plugins.Badwords.listAsNotice.setValue(msg)
-    listAsNotice = property(_get_listAsNotice, _set_listAsNotice)
+    def _get_listingAsNotice(self): return conf.supybot.plugins.Badwords.listing.asNotice()
+    def _set_listingAsNotice(self, msg): conf.supybot.plugins.Badwords.listing.asNotice.setValue(msg)
+    listingAsNotice = property(_get_listingAsNotice, _set_listingAsNotice)
 
-    def _get_listAsPrivate(self): return conf.supybot.plugins.Badwords.listAsPrivate()
-    def _set_listAsPrivate(self, msg): conf.supybot.plugins.Badwords.listAsPrivate.setValue(msg)
-    listAsPrivate = property(_get_listAsPrivate, _set_listAsPrivate)
+    def _get_listingAsPrivate(self): return conf.supybot.plugins.Badwords.listing.asPrivate()
+    def _set_listingAsPrivate(self, msg): conf.supybot.plugins.Badwords.listing.asPrivate.setValue(msg)
+    listingAsPrivate = property(_get_listingAsPrivate, _set_listingAsPrivate)
 
-    def _get_channelForwarding(self): return conf.supybot.plugins.Badwords.channelForwarding()
-    def _set_channelForwarding(self, msg): conf.supybot.plugins.Badwords.channelForwarding.setValue(msg)
-    channelForwarding = property(_get_channelForwarding, _set_channelForwarding)
+    def _get_forwardingEnabled(self): return conf.supybot.plugins.Badwords.forwarding.enabled()
+    def _set_forwardingEnabled(self, msg): conf.supybot.plugins.Badwords.forwarding.enabled.setValue(msg)
+    forwardingEnabled = property(_get_forwardingEnabled, _set_forwardingEnabled)
 
-    def _get_forwardTo(self): return conf.supybot.plugins.Badwords.forwardTo()
-    def _set_forwardTo(self, msg): conf.supybot.plugins.Badwords.forwardTo.setValue(msg)
-    forwardTo = property(_get_forwardTo, _set_forwardTo)
+    def _get_forwardingChannels(self): return conf.supybot.plugins.Badwords.forwarding.channels()
+    def _set_forwardingChannels(self, msg): conf.supybot.plugins.Badwords.forwarding.channels.setValue(msg)
+    forwardingChannels = property(_get_forwardingChannels, _set_forwardingChannels)
 
-    def _get_forwardString(self): return conf.supybot.plugins.Badwords.forwardString()
-    def _set_forwardString(self, msg): conf.supybot.plugins.Badwords.forwardString.setValue(msg)
-    forwardString = property(_get_forwardString, _set_forwardString)
+    def _get_forwardingString(self): return conf.supybot.plugins.Badwords.forwarding.string()
+    def _set_forwardingString(self, msg): conf.supybot.plugins.Badwords.forwarding.string.setValue(msg)
+    forwardingString = property(_get_forwardingString, _set_forwardingString)
 
     def add(self, irc, msg, args, channel, word):
         """[<channel>] <word>, <word>, ...
@@ -159,7 +159,7 @@ class Badwords(callbacks.Plugin):
 
         self._save()
 
-        return irc.reply(self.confirmAddString % {"channel":channel}, private=self.confirmAsPrivate, notice=self.confirmAsNotice)
+        return irc.reply(self.confirmationAdd % {"channel":channel}, private=self.confirmationAsPrivate, notice=self.confirmationAsNotice)
     add = wrap(add, ['channel', 'text', 'admin'])
 
     def remove(self, irc, msg, args, channel, word):
@@ -176,7 +176,7 @@ class Badwords(callbacks.Plugin):
 
         self._save()
 
-        return irc.reply(self.confirmRemoveString % {"channel":channel}, private=self.confirmAsPrivate, notice=self.confirmAsNotice)
+        return irc.reply(self.confirmationRemove % {"channel":channel}, private=self.confirmationAsPrivate, notice=self.confirmationAsNotice)
     remove = wrap(remove, ['channel', 'text', 'admin'])
 
     def response(self, irc, msg, args, message):
@@ -186,7 +186,7 @@ class Badwords(callbacks.Plugin):
         given, return the current message."""
         if message is not None:
             self.responseString = message
-        return irc.reply(self.confirmResponseString % {"response":self.responseString}, private=self.confirmAsPrivate, notice=self.confirmAsNotice)
+        return irc.reply(self.confirmationResponse % {"response":self.responseString}, private=self.confirmationAsPrivate, notice=self.confirmationAsNotice)
     response = wrap(response, [optional('text'), 'admin'])
 
     def list(self, irc, msg, args, channel):
@@ -194,7 +194,7 @@ class Badwords(callbacks.Plugin):
 
         Show the list of words."""
 
-        return irc.reply("%s: %s" % (channel, ", ".join(self.words.get(channel, []))), private=self.listAsPrivate, notice=self.listAsNotice)
+        return irc.reply("%s: %s" % (channel, ", ".join(self.words.get(channel, []))), private=self.listingAsPrivate, notice=self.listingAsNotice)
     list = wrap(list, ['channel', 'admin'])
 
     def clear(self, irc, msg, args, channel):
@@ -207,7 +207,7 @@ class Badwords(callbacks.Plugin):
         if channel in self.words:
             del self.words[channel][:]
             self._save()
-        return irc.reply(self.confirmClearString % {"channel":channel}, private=self.confirmAsPrivate, notice=self.confirmAsNotice)
+        return irc.reply(self.confirmationClear % {"channel":channel}, private=self.confirmationAsPrivate, notice=self.confirmationAsNotice)
     clear = wrap(clear, ['channel', 'admin'])
 
     def clearall(self, irc, msg, args):
@@ -218,7 +218,7 @@ class Badwords(callbacks.Plugin):
 
         self.words.clear()
         self._save()
-        return irc.reply(self.confirmClearAllString, private=self.confirmAsPrivate, notice=self.confirmAsNotice)
+        return irc.reply(self.confirmationClearAll, private=self.confirmationAsPrivate, notice=self.confirmationAsNotice)
     clearall = wrap(clearall, ['admin'])
 
     def doPrivmsg(self, irc, msg):
