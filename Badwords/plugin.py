@@ -60,9 +60,9 @@ class Badwords(callbacks.Plugin):
         self.__parent.__init__(irc)
 
         # Loads self.words from disk.
-        self._load()
+        self.load()
 
-    def _load(self):
+    def load(self):
         """Load the self.words from disk."""
         if not os.path.isfile(Badwords.BADWORDS_DATA):
             self.words = {}
@@ -71,7 +71,7 @@ class Badwords(callbacks.Plugin):
         self.words = cPickle.load(f)
         f.close()
 
-    def _save(self):
+    def save(self):
         """Save the self.words to disk."""
         f = open(Badwords.BADWORDS_DATA, "wb")
         cPickle.dump(self.words, f)
@@ -161,7 +161,7 @@ class Badwords(callbacks.Plugin):
             if word not in self.words[channel]:
                 self.words[channel].append(word)
 
-        self._save()
+        self.save()
 
         return irc.reply(self.confirmationAdd % {"channel":channel}, private=self.confirmationAsPrivate, notice=self.confirmationAsNotice)
     add = wrap(add, ['channel', 'text', 'admin'])
@@ -178,7 +178,7 @@ class Badwords(callbacks.Plugin):
             if word in self.words.get(channel, []):
                 self.words[channel].remove(word)
 
-        self._save()
+        self.save()
 
         return irc.reply(self.confirmationRemove % {"channel":channel}, private=self.confirmationAsPrivate, notice=self.confirmationAsNotice)
     remove = wrap(remove, ['channel', 'text', 'admin'])
@@ -212,7 +212,7 @@ class Badwords(callbacks.Plugin):
 
         if channel in self.words:
             del self.words[channel][:]
-            self._save()
+            self.save()
         return irc.reply(self.confirmationClear % {"channel":channel}, private=self.confirmationAsPrivate, notice=self.confirmationAsNotice)
     clear = wrap(clear, ['channel', 'admin'])
 
@@ -223,7 +223,7 @@ class Badwords(callbacks.Plugin):
         """
 
         self.words.clear()
-        self._save()
+        self.save()
         return irc.reply(self.confirmationClearAll, private=self.confirmationAsPrivate, notice=self.confirmationAsNotice)
     clearall = wrap(clearall, ['admin'])
 
