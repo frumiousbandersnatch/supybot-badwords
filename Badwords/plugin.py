@@ -252,7 +252,7 @@ class Badwords(callbacks.Plugin):
             if not word in self.regex:
                 # UTF strings must be converted to unicode. Then compile the regex with the re.UNICODE flag.
                 # fnmatch.translate() appends a $ sign.
-                regex = "^%s" % fnmatch.translate(word.decode("utf-8"))
+                regex = r"^%s" % fnmatch.translate(word.decode("utf-8")) # r"^%s$"
                 self.regex[word] = re.compile(regex, re.IGNORECASE | re.UNICODE)
             for w in txt.decode("utf-8").split():
                 if self.regex[word].search(w):
