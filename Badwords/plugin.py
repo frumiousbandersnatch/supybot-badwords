@@ -62,6 +62,10 @@ class Badwords(callbacks.Plugin):
         # Loads self.words from disk.
         self.load()
 
+        # A cache for precompiled regular expression
+        # regex[word] = regex
+        self.regex = {}
+
     def load(self):
         """Load the self.words from disk."""
         if not os.path.isfile(Badwords.BADWORDS_DATA):
@@ -245,11 +249,13 @@ class Badwords(callbacks.Plugin):
             return
 
         for word in self.words[channel]:
-            # UTF strings must be converted to unicode. Then compile the regex with the re.UNICODE flag.
-            # Remove the last char "$" appended by fnmatch.translate().
-            regex = re.compile(r"^%s$" % fnmatch.translate(word.decode("utf-8"))[:-1], re.IGNORECASE | re.UNICODE)
+            if not word in self.regex:
+                # UTF strings must be converted to unicode. Then compile the regex with the re.UNICODE flag.
+                # fnmatch.translate() appends a $ sign.
+                regex = "^%s" % fnmatch.translate(word.decode("utf-8"))
+                self.regex[word] = re.compile(regex, re.IGNORECASE | re.UNICODE)
             for w in txt.decode("utf-8").split():
-                if regex.search(w):
+                if self.regex[word].search(w):
                     return irc.reply(self.responseString, private=self.responseAsPrivate, notice=self.responseAsNotice)
 
 Class = Badwords
