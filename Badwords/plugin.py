@@ -250,7 +250,7 @@ class Badwords(callbacks.Plugin):
 
         for word in self.words[channel]:
             if not word in self.regex:
-                # Clean up the word from special caracters that might make a word seen as 2.
+                # Clean up the words from special caracters that might make a word seen as two separate words.
                 # e.g. "c'est" is seen as separate "c" and "est", which is not what we want.
                 clean = re.sub("['-_]", "", word.decode("utf-8"))
                 # UTF strings must be converted to unicode. Then compile the regex with the re.UNICODE flag.
