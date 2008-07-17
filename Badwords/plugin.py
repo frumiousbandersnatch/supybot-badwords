@@ -216,6 +216,7 @@ class Badwords(callbacks.Plugin):
 
         if channel in self.words:
             del self.words[channel][:]
+            self.regex.clear()
             self.save()
         return irc.reply(self.confirmationClear % {"channel":channel}, private=self.confirmationAsPrivate, notice=self.confirmationAsNotice)
     clear = wrap(clear, ['channel', 'admin'])
@@ -227,6 +228,7 @@ class Badwords(callbacks.Plugin):
         """
 
         self.words.clear()
+        self.regex.clear()
         self.save()
         return irc.reply(self.confirmationClearAll, private=self.confirmationAsPrivate, notice=self.confirmationAsNotice)
     clearall = wrap(clearall, ['admin'])
