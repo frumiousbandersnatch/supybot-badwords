@@ -233,13 +233,11 @@ class Badwords(callbacks.Plugin):
 
     def doPrivmsg(self, irc, msg):
         """This is called everytime an IRC message is recieved."""
-        # Grab the command char
-        cmd_char = conf.supybot.reply.whenAddressedBy.chars()
-
         # Grab the actual text
         txt = msg.args[1]
 
         # Don't process bot commands.
+        cmd_char = conf.supybot.reply.whenAddressedBy.chars()
         if txt.startswith(cmd_char):
             return
 
@@ -250,14 +248,14 @@ class Badwords(callbacks.Plugin):
 
         for word in self.words[channel]:
             if not word in self.regex:
-                # Clean up the words from special caracters that might make a word seen as two separate words.
+                # Clean up the word from special caracters that might make a word seen as two separate words.
                 # e.g. "c'est" is seen as separate "c" and "est", which is not what we want.
-                clean = re.sub("['-_]", "", word.decode("utf-8"))
+                clean = re.sub("['_-]", "", word.decode("utf-8"))
                 # UTF strings must be converted to unicode. Then compile the regex with the re.UNICODE flag.
                 # Remove the last char "$" appended by fnmatch.translate().
                 regex = r"\b%s\b" % fnmatch.translate(clean)[:-1]
                 self.regex[word] = re.compile(regex, re.IGNORECASE | re.UNICODE)
-            if self.regex[word].search(re.sub("['-_]", "", txt)):
+            if self.regex[word].search(re.sub("['_-]", "", txt.decode("utf-8"))):
                 return irc.reply(self.responseString, private=self.responseAsPrivate, notice=self.responseAsNotice)
 
 Class = Badwords
