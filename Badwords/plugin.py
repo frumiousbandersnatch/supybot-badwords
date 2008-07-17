@@ -250,13 +250,15 @@ class Badwords(callbacks.Plugin):
 
         for word in self.words[channel]:
             if not word in self.regex:
+                # Clean up the word from special caracters that might make a word seen as 2.
+                # e.g. "c'est" is seen as separate "c" and "est", which is not what we want.
+                clean = re.sub("['-_]", "", word.decode("utf-8"))
                 # UTF strings must be converted to unicode. Then compile the regex with the re.UNICODE flag.
-                # fnmatch.translate() appends a $ sign.
-                regex = r"^%s" % fnmatch.translate(word.decode("utf-8")) # r"^%s$"
+                # Remove the last char "$" appended by fnmatch.translate().
+                regex = r"\b%s\b" % fnmatch.translate(clean)[:-1]
                 self.regex[word] = re.compile(regex, re.IGNORECASE | re.UNICODE)
-            for w in txt.decode("utf-8").split():
-                if self.regex[word].search(w):
-                    return irc.reply(self.responseString, private=self.responseAsPrivate, notice=self.responseAsNotice)
+            if self.regex[word].search(re.sub("['-_]", "", txt)):
+                return irc.reply(self.responseString, private=self.responseAsPrivate, notice=self.responseAsNotice)
 
 Class = Badwords
 
