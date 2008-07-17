@@ -252,10 +252,10 @@ class Badwords(callbacks.Plugin):
             if not word in self.regex:
                 # Clean up the word from special caracters that might make a word seen as two separate words.
                 # e.g. "c'est" is seen as separate "c" and "est", which is not what we want.
-                clean = re.sub("['_-]", "", word.decode("utf-8"))
+                clean = re.sub("['_-]", "", word)
                 # UTF strings must be converted to unicode. Then compile the regex with the re.UNICODE flag.
                 # Remove the last char "$" appended by fnmatch.translate().
-                regex = r"\b%s\b" % fnmatch.translate(clean)[:-1]
+                regex = r"\b%s\b" % fnmatch.translate(clean.decode("utf-8"))[:-1]
                 self.regex[word] = re.compile(regex, re.IGNORECASE | re.UNICODE)
             if self.regex[word].search(re.sub("['_-]", "", txt.decode("utf-8"))):
                 return irc.reply(self.responseString, private=self.responseAsPrivate, notice=self.responseAsNotice)
